@@ -15,8 +15,8 @@ class DB
     public function __construct()
     {
         try {
-            $this->connection = new MongoClient();
-            $dbs = $this->connection->listDBs();
+            $this->connection = new MongoDB\Client();
+            $dbs = $this->connection->listDatabases();
 
             $dbs = $dbs['databases'];
             $exists = false;
@@ -31,7 +31,7 @@ class DB
                 $this->db = new MongoDB($this->connection, 'test');
             }
 
-            $this->db = $this->connection->selectDB('test');
+            $this->db = $this->connection->selectDatabase('test');
 
             $this->collections = $this->db->getCollectionNames();
 
