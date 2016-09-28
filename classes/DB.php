@@ -17,16 +17,18 @@ class DB
         try {
             
             $this->connection = new \MongoDB\Driver\Manager();
-            $dbs = $this->connection->adminCommand(['listDatabases' => 1]);
-var_dump($dbs); exit;
-            $dbs = $dbs['databases'];
+            //$this->db = new MongoDB($this->connection, 'test');
+            //$dbs = $this->connection->adminCommand(['listDatabases' => 1]);
+            $this->db = $this->connection->selectDatabase('test');
+var_dump($this->db); exit;
+            /*$dbs = $dbs['databases'];
             $exists = false;
             foreach ($dbs as $db) {
                 if($db['name'] == 'test') {
                     $exists = true;
                     break;
                 }
-            }
+            }*/
 
             if(!$exists) {
                 $this->db = new MongoDB($this->connection, 'test');
