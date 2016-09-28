@@ -17,7 +17,6 @@ class DB
         try {
             
             $this->connection = new \MongoDB\Driver\Manager();
-            var_dump($this->connection); exit;
             $dbs = $this->connection->listDatabases();
 
             $dbs = $dbs['databases'];
