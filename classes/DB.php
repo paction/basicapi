@@ -19,7 +19,7 @@ class DB
             $this->connection = new \MongoDB\Driver\Manager();
             //$this->db = new MongoDB($this->connection, 'test');
             //$dbs = $this->connection->adminCommand(['listDatabases' => 1]);
-            $this->db = $this->connection->selectDatabase('test');
+            $this->db = $this->connection->selectDB('test');
 var_dump($this->db); exit;
             /*$dbs = $dbs['databases'];
             $exists = false;
