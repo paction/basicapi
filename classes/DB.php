@@ -8,33 +8,30 @@
  */
 class DB
 {
-    public $manager;
+    public $connection;
     public $db;
     public $collections;
 
     public function __construct()
     {
         try {
-            
-            $this->manager = new \MongoDB\Driver\Manager();
-            //$this->db = new MongoDB($this->connection, 'test');
-            //$dbs = $this->connection->adminCommand(['listDatabases' => 1]);
-            //$this->db = $this->connection->selectDB('test');
-//var_dump($this->db); exit;
-            /*$dbs = $dbs['databases'];
+            $this->connection = new MongoClient();
+            $dbs = $this->connection->listDBs();
+
+            $dbs = $dbs['databases'];
             $exists = false;
             foreach ($dbs as $db) {
                 if($db['name'] == 'test') {
                     $exists = true;
                     break;
                 }
-            }*/
+            }
 
-            /*if(!$exists) {
+            if(!$exists) {
                 $this->db = new MongoDB($this->connection, 'test');
             }
 
-            $this->db = $this->connection->selectDatabase('test');
+            $this->db = $this->connection->selectDB('test');
 
             $this->collections = $this->db->getCollectionNames();
 
@@ -44,7 +41,7 @@ class DB
 
             if(!in_array('leaderboard', $this->collections)) {
                 $this->db->createCollection("leaderboard");
-            }*/
+            }
 
         } catch (MongoConnectionException $e) {
             Application::app()->respond()->sendError('Error connecting to MongoDB server');

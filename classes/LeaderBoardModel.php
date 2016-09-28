@@ -106,6 +106,8 @@ class LeaderBoardModel extends Model
             'UserId' => $u_id,
             'LeaderboardId' => $l_id
         ])->skip($data['Offset'])->limit($data['Limit']);
+
+        return $entries;
     }
 
     public function getUserScore($userId, $leaderboardId)
