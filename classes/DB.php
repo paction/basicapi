@@ -15,9 +15,9 @@ class DB
     public function __construct()
     {
         try {
-            echo MONGODB_VERSION; exit;
             
             $this->connection = new \MongoDB\Driver\Manager();
+            var_dump($this->connection); exit;
             $dbs = $this->connection->listDatabases();
 
             $dbs = $dbs['databases'];
