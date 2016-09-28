@@ -12,6 +12,6 @@ class Model
 
     public function __construct($collection)
     {
-        $this->collection = Application::app()->db()->db->$collection;
+        $this->collection = Application::app()->db()->manager->$collection;
     }
 }

@@ -8,7 +8,7 @@
  */
 class DB
 {
-    public $connection;
+    public $manager;
     public $db;
     public $collections;
 
@@ -16,11 +16,11 @@ class DB
     {
         try {
             
-            $this->connection = new \MongoDB\Driver\Manager();
+            $this->manager = new \MongoDB\Driver\Manager();
             //$this->db = new MongoDB($this->connection, 'test');
             //$dbs = $this->connection->adminCommand(['listDatabases' => 1]);
-            $this->db = $this->connection->selectDB('test');
-var_dump($this->db); exit;
+            //$this->db = $this->connection->selectDB('test');
+//var_dump($this->db); exit;
             /*$dbs = $dbs['databases'];
             $exists = false;
             foreach ($dbs as $db) {
@@ -30,7 +30,7 @@ var_dump($this->db); exit;
                 }
             }*/
 
-            if(!$exists) {
+            /*if(!$exists) {
                 $this->db = new MongoDB($this->connection, 'test');
             }
 
@@ -44,7 +44,7 @@ var_dump($this->db); exit;
 
             if(!in_array('leaderboard', $this->collections)) {
                 $this->db->createCollection("leaderboard");
-            }
+            }*/
 
         } catch (MongoConnectionException $e) {
             Application::app()->respond()->sendError('Error connecting to MongoDB server');
