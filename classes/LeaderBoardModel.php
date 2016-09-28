@@ -28,27 +28,127 @@ class LeaderBoardModel extends Model
             Application::app()->respond()->sendError('Bad Score');
         }
 
-        $current = $this->collection->findOne([
-            'UserId' => new MongoInt32($data['UserId']),
-            'LeaderboardId' => new MongoInt32($data['LeaderboardId'])
-        ], ['Score'], ['sort' => -1]);
+        $l_id = new MongoInt32($data['LeaderboardId']);
+        $u_id = new MongoInt32($data['UserId']);
 
-        if(!$current) {
+        $currentScore = $this->getUserScore($u_id, $l_id);
+
+        $r = ['ok' => 1];
+
+        $scoreUpdated = false;
+
+        if(!$currentScore) {
             $r = $this->collection->insert([
-                'UserId' => new MongoInt32($data['UserId']),
-                'LeaderboardId' => new MongoInt32($data['LeaderboardId']),
+                'UserId' => $u_id,
+                'LeaderboardId' => $l_id,
                 'Score' => new MongoInt32($data['Score'])
             ]);
-        } elseif($current['Score'] > (int)$data['Score']) {
+            $scoreUpdated = true;
+            $currentScore = $data['Score'];
+
+            // Get Rank
+            $this->_getRank($l_id, $data);
+            // TODO: Update
+
+        } elseif($currentScore < (int)$data['Score']) {
             $r = $this->collection->insert([
-                'UserId' => new MongoInt32($data['UserId']),
-                'LeaderboardId' => new MongoInt32($data['LeaderboardId']),
+                'UserId' => $u_id,
+                'LeaderboardId' => $l_id,
                 'Score' => new MongoInt32($data['Score'])
             ]);
-        } else {
-            $r = ['ok' => 1];
+            $scoreUpdated = true;
+            $currentScore = $data['Score'];
+
+            // Get Rank
+            $this->_getRank($l_id, $data);
+            // TODO: Update
         }
 
-        return $r;
+        if(!$r['ok']) {
+            return $r;
+        }
+
+        // Current Score
+        $current =  $this->collection->find( [
+            'UserId' => $u_id,
+            'LeaderboardId' => $l_id
+        ]);
+        $current->sort( ['Score' => -1] );
+        $current->limit(1);
+        $current->next();
+        $current = $current->current();
+
+        return [
+            'ok' => 1,
+            'result' => [
+                'UserId' => (int)$current['UserId'],
+                'LeaderboardId' => (int)$current['LeaderboardId'],
+                'Score' => $current['Score'],
+                'Rank' => $current['Rank']
+            ]
+        ];
+    }
+
+    public function Leaderboard($data)
+    {
+        // Verify Integer fields
+        $positiveIntegerInputFields = ['LeaderboardId', 'UserId', 'Offset', 'Limit'];
+        foreach ($positiveIntegerInputFields as $integerInputField) {
+            if(!Validators::validateInteger($integerInputField, $data, true)) {
+                Application::app()->respond()->sendError('Bad ' . $integerInputField);
+            }
+        }
+
+        $l_id = new MongoInt32($data['LeaderboardId']);
+        $u_id = new MongoInt32($data['UserId']);
+
+        $entries = $this->collection->find([
+            'UserId' => $u_id,
+            'LeaderboardId' => $l_id
+        ])->skip($data['Offset'])->limit($data['Limit']);
+    }
+
+    public function getUserScore($userId, $leaderboardId)
+    {
+        $currentScore =  $this->collection->find( [
+            'UserId' => $userId,
+            'LeaderboardId' => $leaderboardId
+        ]);
+        $currentScore->sort( ['Score' => -1] );
+        $currentScore->limit(1);
+        $currentScore->next();
+        $currentScore = $currentScore->current();
+
+        if(!$currentScore) {
+            return false;
+        }
+
+        return $currentScore['Score'];
+    }
+
+    static function scoreSort($a, $b)
+    {
+        if ($a['Score'] == $b['Score']) {
+            return 0;
+        }
+        return ($a['Score'] < $b['Score']) ? -1 : 1;
+    }
+
+    private function _getRank($l_id, $data)
+    {
+        $currentRank = 1;
+        $users = $this->collection->distinct('UserId', ['LeaderboardId' => $l_id]);
+        $scores = [];
+        foreach ($users as $user) {
+            $scores[] = ['UserId' => $user, 'Score' => $this->getUserScore($user, $l_id)];
+        }
+        usort($scores, ['self', 'scoreSort']);
+        foreach ($scores as $k=>$score) {
+            if($score['UserId'] == $data['UserId']) {
+                $currentRank = $k+1;
+                break;
+            }
+        }
+        return $currentRank;
     }
 }

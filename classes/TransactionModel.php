@@ -52,7 +52,16 @@ class TransactionModel extends Model
             'CurrencyAmount' => new MongoInt32($data['CurrencyAmount'])
         ];
 
-        return $this->collection->insert($transaction);
+        $r = $this->collection->insert($transaction);
+
+        if(!$r['ok']) {
+            return $r;
+        }
+
+        return [
+            'ok' => 1,
+            'result' => ['Success' => true]
+        ];
     }
     
     public function TransactionStats($data)

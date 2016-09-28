@@ -83,36 +83,28 @@ class Application
     {
         $model = new TransactionModel();
         $r = $model->CreateTransaction($this->_initInput());
-
-        if(isset($r['ok']) && $r['ok'] == 1) {
-            return ['Success' => true];
-        } else {
-            $this->respond()->sendError('Error when inserting: ' . $r['errmsg']);
-        }
+        $this->_handleResponse($r);
     }
 
     public function TransactionStatsControllerAction()
     {
         $model = new TransactionModel();
         $r = $model->TransactionStats($this->_initInput());
-
-        if(isset($r['ok']) && $r['ok'] == 1) {
-            return $r['result'];
-        } else {
-            $this->respond()->sendError('Error: ' . $r['errmsg']);
-        }
+        $this->_handleResponse($r);
     }
 
     public function ScorePostControllerAction()
     {
         $model = new LeaderBoardModel();
         $r = $model->ScorePost($this->_initInput());
+        $this->_handleResponse($r);
+    }
 
-        if(isset($r['ok']) && $r['ok'] == 1) {
-            return $r['result'];
-        } else {
-            $this->respond()->sendError('Error: ' . $r['errmsg']);
-        }
+    public function LeaderboardGetControllerAction()
+    {
+        $model = new LeaderBoardModel();
+        $r = $model->Leaderboard($this->_initInput());
+        $this->_handleResponse($r);
     }
 
     private function _initInput()
@@ -122,5 +114,14 @@ class Application
         }
 
         return $this->request()->getData();
+    }
+
+    private function _handleResponse($r)
+    {
+        if(isset($r['ok']) && $r['ok'] == 1) {
+            return $r['result'];
+        } else {
+            $this->respond()->sendError('Error: ' . $r['errmsg']);
+        }
     }
 }
