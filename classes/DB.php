@@ -17,8 +17,8 @@ class DB
         try {
             
             $this->connection = new \MongoDB\Driver\Manager();
-            $dbs = $this->connection->listDatabases();
-
+            $dbs = $this->connection->adminCommand(['listDatabases' => 1]);
+var_dump($dbs); exit;
             $dbs = $dbs['databases'];
             $exists = false;
             foreach ($dbs as $db) {
